@@ -1,0 +1,35 @@
+{
+    "schema": "etm.edf.regulatedTariff",
+    "version": 1,
+    "name": "Tarif Bleu EDF (tarif réglementé de vente), résidentiel",
+    "effectiveDate": "2026-08-01",
+    "source": "Délibération de la CRE n° 2026-147 du 15/07/2026 (JO du 29/07/2026), prix relevés le 2026-11-06 sur des comparateurs (fournisseurs-electricite.com, kelwatt.fr) qui la citent",
+    "toVerify": true,
+    "toVerifyNote": "À vérifier contre la grille officielle avant publication. Prix EJP : estimation (Selectra) depuis les tarifs HT du JO.",
+    "unit": "c€/kWh TTC",
+    "options": {
+        "base": {
+            "bySubscribedPower": [
+                { "maxKva": 6, "price": 20.01 },
+                { "minKva": 9, "price": 19.85 }
+            ]
+        },
+        "hchp": {
+            "kva": "3-36",
+            "periods": { "hp": 21.42, "hc": 15.89 }
+        },
+        "ejp": {
+            "kva": "9-36",
+            "periods": { "hn": 17.89, "pm": 43.24 },
+            "estimated": true
+        },
+        "tempo": {
+            "periods": {
+                "hcjb": 13.56, "hpjb": 16.54,
+                "hcjw": 15.36, "hpjw": 19.21,
+                "hcjr": 16.15, "hpjr": 72.95
+            },
+            "supported": false
+        }
+    }
+}

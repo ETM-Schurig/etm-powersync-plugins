@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/edf">
+        <file>tariffs/trv-edf.json</file>
+    </qresource>
+</RCC>

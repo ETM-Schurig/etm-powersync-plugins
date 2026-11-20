@@ -1,0 +1,77 @@
+Source: etm-powersync-plugins
+Section: utils
+Priority: optional
+Maintainer: ETM-Schurig SARL <contact@etm-schurig.eu>
+Standards-Version: 4.7.2
+Homepage: https://etm-powersync.fr
+Vcs-Git: https://git.etm-powersync.fr/ETM-Schurig/etm-powersync-plugins.git
+Build-depends: debhelper,
+               pkg-config,
+               libnymea-dev,
+               nymea-dev-tools:native,
+               qt6-base-dev,
+               qt6-base-dev-tools,
+               qt6-serialport-dev,
+
+
+Package: powersync-plugin-openmeteo
+Architecture: any
+Section: libs
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+Description: PowerSync integration plugin for Open-Meteo weather data
+ This package contains the nymea integration plugin to fetch weather and solar
+ forecast data from the Open-Meteo online service, for use by the ETM PowerSync
+ home energy management system.
+
+Package: powersync-plugin-generic-energy
+Architecture: any
+Section: libs
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+Provides: nymea-plugin-generic-energy
+Replaces: nymea-plugin-generic-energy,
+          nymea-plugin-genericthings,
+Conflicts: nymea-plugin-generic-energy,
+           nymea-plugin-genericthings,
+Description: PowerSync integration plugin for generic energy things (ETM fork)
+ Fork of the nymea generic energy plugin. Removing an impulse smart meter now
+ destroys its timer, and the smart meter consumer, smart meter producer, energy
+ meter and wallbox things integrate their current power into their energy
+ counters, instead of leaving them frozen at the last value set by action.
+
+Package: powersync-plugin-v2c
+Architecture: any
+Section: libs
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+Replaces: powersync-plugin-trydan (<< 1.15.2+etm19)
+Description: PowerSync integration plugin for V2C Trydan wallboxes over HTTP
+ Drives V2C Trydan EV chargers through their local HTTP API: pause and resume,
+ charging current, and single / three phase mode with read-back of every
+ command. The phase switching sequence itself is left to the energy manager.
+ Do not drive the same charger with this plugin and the Modbus V2C plugin at
+ the same time.
+ .
+ This package used to be the name of the Modbus V2C plugin, now
+ powersync-plugin-modbus-v2c, which is no longer pulled in: install it
+ separately to keep a charger set up over Modbus.
+
+Package: powersync-plugin-edf
+Architecture: any
+Section: libs
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+         libqt6serialport6,
+Description: PowerSync integration plugin for EDF contracts and Linky meters
+ Electricity contract (Base, off-peak / peak hours, EJP) with the regulated
+ EDF tariff shipped with the package or prices entered by the user: price and
+ nominal price 0-100 of the period in progress, next switch, EJP days and
+ season counter, and the price slots up to the end of the next day.
+ .
+ Reads the Linky meter through its customer information output (TIC,
+ historic mode, 1200 baud) on a serial port: tariff option, period in
+ progress, EJP notice, indexes, current and apparent power (VA). The meter
+ number is never published nor logged.
+ .
+ The plugin opens no network connection.

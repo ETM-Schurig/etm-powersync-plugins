@@ -1,0 +1,275 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Copyright (C) 2026, ETM-Schurig SARL. This file is part of etm-powersync-plugins.
+#
+# Simulator of the TIC of a Linky meter in historic mode (Enedis-NOI-CPT_02E).
+#
+# Opens a pseudo-terminal, puts a stable link to it (by default /tmp/etm-tic) and sends valid
+# historic frames on it at the pace of a 1200 baud line (10 bits per character:
+# start, 7 bits, parity, stop). The link is given as serial port to the thing "Compteur Linky
+# (TIC)". Standard library only.
+#
+# A pseudo-terminal has neither baud rate nor parity: what matters is the byte handed to the reader.
+#   --vu-par 7e1  clean 7-bit bytes, what a UART set to 7E1 delivers;
+#   --vu-par 8n1  bytes with the even parity in bit 7, what a UART set to 8N1 delivers
+#                 (Raspberry Pi mini-UART) when it reads a 7E1 line.
+#
+# The meter number (ADCO) is fictitious: 000000000000.
+#
+# The simulated clock drives the meter (current period, EJP notice, index). The plugin, however,
+# timestamps what it reads with the box clock: with --acceleration, the TIC changes period
+# faster than the box changes hour, and the contract interprets the peak at the box time.
+#
+# Examples:
+#   etm-powersync-tic-simulateur --scenario base
+#   etm-powersync-tic-simulateur --scenario hchp --hc "22:00-06:00" --debut 2026-11-20T21:58
+#   etm-powersync-tic-simulateur --scenario ejp --jour-ejp pointe --debut 2026-11-20T06:25
+#   etm-powersync-tic-simulateur --scenario ejp --jour-ejp pointe --debut 2026-11-21T00:55  (end of peak)
+#   etm-powersync-tic-simulateur --scenario hchp --phases 3 --vu-par 8n1 --somme-fausse 5
+#   etm-powersync-tic-simulateur --scenario ejp --jour-ejp pointe --debut 2026-11-20T06:25 --dump 3
+
+import argparse
+import datetime as dt
+import errno
+import os
+import signal
+import sys
+import time
+import tty
+
+STX, ETX, EOT, LF, CR, SP = b"\x02", b"\x03", b"\x04", b"\n", b"\r", b" "
+ADCO_FICTIF = "000000000000"
+BAUDS = 1200
+BITS_PAR_CARACTERE = 10
+
+
+def somme(etiquette: bytes, donnee: bytes) -> bytes:
+    total = sum(etiquette) + SP[0] + sum(donnee)
+    return bytes([(total & 0x3F) + 0x20])
+
+
+def groupe(etiquette: str, donnee: str, fausse: bool = False) -> bytes:
+    e, d = etiquette.encode("ascii"), donnee.encode("ascii")
+    s = somme(e, d)
+    if fausse:
+        s = bytes([((s[0] - 0x20 + 1) & 0x3F) + 0x20])
+    return LF + e + SP + d + SP + s + CR
+
+
+def parite_dans_bit7(octets: bytes) -> bytes:
+    out = bytearray()
+    for b in octets:
+        b &= 0x7F
+        if bin(b).count("1") % 2:
+            b |= 0x80
+        out.append(b)
+    return bytes(out)
+
+
+def plages(texte: str):
+    resultat = []
+    for morceau in texte.replace(";", ",").split(","):
+        morceau = morceau.strip()
+        if not morceau:
+            continue
+        debut, fin = morceau.split("-")
+        h1, m1 = (int(x) for x in debut.split(":"))
+        h2, m2 = (int(x) for x in fin.split(":"))
+        resultat.append((h1 * 60 + m1, (h2 % 24) * 60 + m2))
+    return resultat
+
+
+def dans_plage(minute: int, plage) -> bool:
+    a, b = plage
+    b = 1440 if b == 0 else b
+    return a <= minute < b if a < b else (minute >= a or minute < b)
+
+
+class Compteur:
+    def __init__(self, args):
+        self.args = args
+        self.heure = dt.datetime.fromisoformat(args.debut) if args.debut else dt.datetime.now().replace(microsecond=0)
+        self.plages = plages(args.hc)
+        self.index = {e: args.index_initial for e in ("BASE", "HCHC", "HCHP", "EJPHN", "EJPHPM")}
+
+    # The EJP peak day: from day D 07:00 to D+1 01:00, if D is a peak day.
+    def jour_de_pointe(self, jour: dt.date) -> bool:
+        if self.args.jour_ejp == "pointe":
+            return True
+        if self.args.jour_ejp == "normal":
+            return False
+        return jour.isoformat() in self.args.dates_pointe.split(",")
+
+    def periode(self):
+        minute = self.heure.hour * 60 + self.heure.minute
+        s = self.args.scenario
+        if s == "base":
+            return "TH..", "BASE"
+        if s == "hchp":
+            if any(dans_plage(minute, p) for p in self.plages):
+                return "HC..", "HCHC"
+            return "HP..", "HCHP"
+        # ejp
+        if 7 * 60 <= minute:
+            jour = self.heure.date()
+        elif minute < 60:
+            jour = self.heure.date() - dt.timedelta(days=1)
+        else:
+            return "HN..", "EJPHN"
+        if self.jour_de_pointe(jour):
+            return "PM..", "EJPHPM"
+        return "HN..", "EJPHN"
+
+    def preavis_ejp(self) -> bool:
+        if self.args.scenario != "ejp":
+            return False
+        minute = self.heure.hour * 60 + self.heure.minute
+        return 6 * 60 + 30 <= minute < 7 * 60 and self.jour_de_pointe(self.heure.date())
+
+    def avancer(self, secondes: float):
+        _, etiquette = self.periode()
+        self.index[etiquette] += self.args.puissance * secondes / 3600.0
+        self.heure += dt.timedelta(seconds=secondes)
+
+    def trame(self, fausse: bool = False) -> bytes:
+        a = self.args
+        ptec, _ = self.periode()
+        papp = int(round(a.puissance / a.cosphi))
+        groupes = [("ADCO", ADCO_FICTIF)]
+        optarif = {"base": "BASE", "hchp": "HC..", "ejp": "EJP."}[a.scenario]
+        groupes.append(("OPTARIF", optarif))
+        groupes.append(("ISOUSC", "%02d" % a.isousc))
+        if a.scenario == "base":
+            groupes.append(("BASE", "%09d" % int(self.index["BASE"])))
+        elif a.scenario == "hchp":
+            groupes.append(("HCHC", "%09d" % int(self.index["HCHC"])))
+            groupes.append(("HCHP", "%09d" % int(self.index["HCHP"])))
+        else:
+            groupes.append(("EJPHN", "%09d" % int(self.index["EJPHN"])))
+            groupes.append(("EJPHPM", "%09d" % int(self.index["EJPHPM"])))
+            if self.preavis_ejp():
+                groupes.append(("PEJP", "30"))
+        groupes.append(("PTEC", ptec))
+        if a.phases == 1:
+            groupes.append(("IINST", "%03d" % int(round(papp / 230.0))))
+            groupes.append(("IMAX", "090"))
+            groupes.append(("PAPP", "%05d" % papp))
+        else:
+            courant = int(round(papp / 3 / 230.0))
+            for n in (1, 2, 3):
+                groupes.append(("IINST%d" % n, "%03d" % courant))
+            for n in (1, 2, 3):
+                groupes.append(("IMAX%d" % n, "060"))
+            groupes.append(("PMAX", "%05d" % (a.isousc * 3 * 230)))
+            groupes.append(("PAPP", "%05d" % papp))
+        groupes.append(("HHPHC", "A"))
+        groupes.append(("MOTDETAT", "000000"))
+        if a.phases == 3:
+            groupes.append(("PPOT", "00"))
+        fausse_index = len(groupes) // 2 if fausse else -1
+        corps = b"".join(groupe(e, d, i == fausse_index) for i, (e, d) in enumerate(groupes))
+        return STX + corps + ETX
+
+
+def emettre(fd, octets: bytes, rythme: bool):
+    # A line without a reader loses its bytes: non-blocking write, the excess is dropped.
+    for i in range(0, len(octets), 16):
+        morceau = octets[i:i + 16]
+        try:
+            os.write(fd, morceau)
+        except OSError as e:
+            if e.errno not in (errno.EAGAIN, errno.EWOULDBLOCK, errno.EIO):
+                raise
+        if rythme:
+            time.sleep(len(morceau) * BITS_PAR_CARACTERE / BAUDS)
+
+
+def main():
+    p = argparse.ArgumentParser(description="Simulateur de TIC Linky (mode historique) sur un pseudo-terminal.")
+    p.add_argument("--lien", default="/tmp/etm-tic", help="lien stable vers le pseudo-terminal (port à donner au thing)")
+    p.add_argument("--scenario", choices=["base", "hchp", "ejp"], default="base")
+    p.add_argument("--phases", type=int, choices=[1, 3], default=1)
+    p.add_argument("--vu-par", choices=["7e1", "8n1"], default="7e1",
+                   help="7e1 : octets de 7 bits ; 8n1 : parité paire dans le bit 7 (mini-UART)")
+    p.add_argument("--hc", default="22:00-06:00", help="plages d'heures creuses, ex. \"12:00-14:00,22:00-04:00\"")
+    p.add_argument("--jour-ejp", choices=["normal", "pointe", "dates"], default="normal",
+                   help="EJP : tous les jours normaux, tous de pointe, ou selon --dates-pointe")
+    p.add_argument("--dates-pointe", default="", help="EJP : jours de pointe AAAA-MM-JJ séparés par des virgules")
+    p.add_argument("--debut", default="", help="heure simulée de départ, AAAA-MM-JJTHH:MM (défaut : maintenant)")
+    p.add_argument("--acceleration", type=float, default=1.0, help="secondes simulées par seconde réelle")
+    p.add_argument("--puissance", type=float, default=1000.0, help="puissance consommée (W), fait avancer l'index")
+    p.add_argument("--cosphi", type=float, default=0.9, help="PAPP = puissance / cosphi (VA)")
+    p.add_argument("--isousc", type=int, default=30, help="intensité souscrite (A)")
+    p.add_argument("--index-initial", type=int, default=12345678, help="index de départ (Wh)")
+    p.add_argument("--somme-fausse", type=int, default=0, metavar="N", help="une somme fausse toutes les N trames")
+    p.add_argument("--coupe", type=int, default=0, metavar="N", help="une trame coupée (EOT) toutes les N trames")
+    p.add_argument("--silence-apres", type=float, default=0, metavar="S", help="se taire après S secondes réelles")
+    p.add_argument("--silence-duree", type=float, default=0, metavar="S", help="durée du silence (0 = pour toujours)")
+    p.add_argument("--dump", type=int, default=0, metavar="N",
+                   help="écrire N trames sur la sortie standard, sans pseudo-terminal ni rythme (tests)")
+    args = p.parse_args()
+
+    compteur = Compteur(args)
+    convertir = parite_dans_bit7 if args.vu_par == "8n1" else (lambda b: b)
+
+    if args.dump:
+        for n in range(1, args.dump + 1):
+            trame = compteur.trame(fausse=bool(args.somme_fausse) and n % args.somme_fausse == 0)
+            if args.coupe and n % args.coupe == 0:
+                trame = trame[: len(trame) // 2] + EOT
+            sys.stdout.buffer.write(convertir(trame))
+            compteur.avancer(len(trame) * BITS_PAR_CARACTERE / BAUDS * args.acceleration)
+        sys.stdout.buffer.flush()
+        return 0
+
+    maitre, esclave = os.openpty()
+    tty.setraw(esclave)
+    os.set_blocking(maitre, False)
+    nom = os.ttyname(esclave)
+    try:
+        if os.path.islink(args.lien) or os.path.exists(args.lien):
+            os.unlink(args.lien)
+        os.symlink(nom, args.lien)
+    except OSError as e:
+        print("lien %s impossible : %s" % (args.lien, e), file=sys.stderr)
+        return 1
+
+    def fin(*_):
+        try:
+            if os.path.islink(args.lien) and os.readlink(args.lien) == nom:
+                os.unlink(args.lien)
+        finally:
+            sys.exit(0)
+
+    signal.signal(signal.SIGTERM, fin)
+    signal.signal(signal.SIGINT, fin)
+    print("TIC simulée sur %s -> %s (%s, %d phase(s), vue par %s)"
+          % (args.lien, nom, args.scenario, args.phases, args.vu_par), flush=True)
+
+    depart = time.monotonic()
+    n = 0
+    derniere_periode = None
+    while True:
+        ecoule = time.monotonic() - depart
+        if args.silence_apres and ecoule >= args.silence_apres and (
+                not args.silence_duree or ecoule < args.silence_apres + args.silence_duree):
+            time.sleep(0.5)
+            compteur.avancer(0.5 * args.acceleration)
+            continue
+        n += 1
+        trame = compteur.trame(fausse=bool(args.somme_fausse) and n % args.somme_fausse == 0)
+        if args.coupe and n % args.coupe == 0:
+            trame = trame[: len(trame) // 2] + EOT
+        periode = compteur.periode()[0] + (" PEJP" if compteur.preavis_ejp() else "")
+        if periode != derniere_periode:
+            print("%s  PTEC %s" % (compteur.heure.isoformat(timespec="minutes"), periode), flush=True)
+            derniere_periode = periode
+        debut_trame = time.monotonic()
+        emettre(maitre, convertir(trame), rythme=True)
+        time.sleep(0.03)  # silence between two frames
+        compteur.avancer((time.monotonic() - debut_trame) * args.acceleration)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,26 @@
+# Trial unit for the TIC simulator. NOT installed nor enabled by any package: copied by
+# hand next to the simulator, started by hand, removed after the trial. It has no [Install]
+# section, so it cannot be enabled by mistake.
+#
+#   sudo install -D -m 755 etm-powersync-tic-simulateur /opt/etm-tic-sim/etm-powersync-tic-simulateur
+#   sudo install -m 644 etm-powersync-tic-simulateur.service /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl start etm-powersync-tic-simulateur
+#   -> serial port of the thing "Compteur Linky (TIC)": /run/etm-tic-sim/tic
+#   sudo systemctl stop etm-powersync-tic-simulateur
+#
+# The scenario is changed with a drop-in (systemctl edit) overriding ExecStart.
+
+[Unit]
+Description=Simulateur de TIC Linky en mode historique (essai)
+
+[Service]
+Type=simple
+DynamicUser=yes
+RuntimeDirectory=etm-tic-sim
+RuntimeDirectoryMode=0755
+ExecStart=/usr/bin/python3 -I /opt/etm-tic-sim/etm-powersync-tic-simulateur --lien /run/etm-tic-sim/tic --scenario ejp --jour-ejp normal --vu-par 7e1
+Restart=on-failure
+ProtectSystem=strict
+ProtectHome=yes
+PrivateNetwork=yes
+NoNewPrivileges=yes

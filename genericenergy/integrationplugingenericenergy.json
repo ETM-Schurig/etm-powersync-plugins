@@ -1,0 +1,485 @@
+{
+    "name": "genericEnergy",
+    "displayName": "Generic energy devices",
+    "id": "b3188696-2585-4806-bf98-30ab576ce5c8",
+    "vendors": [
+        {
+            "name": "nymea",
+            "displayName": "nymea",
+            "id": "2062d64d-3232-433c-88bc-0d33c0ba2ba6",
+            "thingClasses": [
+                {
+                    "id": "4e7261af-a27b-4446-8346-914ea59f7547",
+                    "name": "socket",
+                    "displayName": "Generic power socket",
+                    "createMethods": ["user"],
+                    "interfaces": ["powersocket"],
+                    "stateTypes": [
+                        {
+                            "id": "018038d7-1d02-4b17-8fe3-babca044b087",
+                            "name": "power",
+                            "displayName": "Power",
+                            "displayNameEvent": "Power changed",
+                            "displayNameAction": "Set power",
+                            "type": "bool",
+                            "defaultValue": false,
+                            "writable": true,
+                            "ioType": "digitalInput"
+                        }
+                    ]
+                },
+                {
+                    "id": "7bba50d7-e18a-41a8-8267-7aa4876ec475",
+                    "name": "energyMeter",
+                    "displayName": "Generic energy meter",
+                    "createMethods": ["user"],
+                    "interfaces": ["energymeter"],
+                    "stateTypes": [
+                        {
+                            "id": "d5f3fb79-3654-4aaf-ae30-3a761fe2dfd8",
+                            "name": "currentPower",
+                            "displayName": "Current Power usage",
+                            "displayNameAction": "Set current Power usage",
+                            "type": "double",
+                            "defaultValue": 0.00,
+                            "unit": "Watt",
+                            "writable": true
+                        },
+                        {
+                            "id": "db36a37d-7c48-4208-8b6e-a1b93acb827f",
+                            "name": "totalEnergyConsumed",
+                            "displayName": "Total obtained energy",
+                            "displayNameAction": "Set total obtained energy",
+                            "type": "double",
+                            "defaultValue": 0.00,
+                            "unit": "KiloWattHour",
+                            "writable": true
+                        },
+                        {
+                            "id": "e73d72f3-b172-4db0-9120-0f713e210bdf",
+                            "name": "totalEnergyProduced",
+                            "displayName": "Total returned energy",
+                            "displayNameAction": "Set total returned energy",
+                            "type": "double",
+                            "defaultValue": 0.00,
+                            "unit": "KiloWattHour",
+                            "writable": true
+                        },
+                        {
+                            "id": "e493ec25-fb8a-4e36-84d9-4430418b3b6f",
+                            "name": "currentPhaseA",
+                            "displayName": "Current on phase A",
+                            "displayNameAction": "Set current on phase A",
+                            "type": "double",
+                            "defaultValue": 0.00,
+                            "unit": "Ampere",
+                            "writable": true
+                        },
+                        {
+                            "id": "37097a51-063e-4b04-aa7b-67ddda8a3c81",
+                            "name": "currentPhaseB",
+                            "displayName": "Current on phase B",
+                            "displayNameAction": "Set current on phase B",
+                            "type": "double",
+                            "defaultValue": 0.00,
+                            "unit": "Ampere",
+                            "writable": true
+                        },
+                        {
+                            "id": "6c3497fd-9894-4485-a295-15b0d829d023",
+                            "name": "currentPhaseC",
+                            "displayName": "Current on phase C",
+                            "displayNameAction": "Set current on phase C",
+                            "type": "double",
+                            "defaultValue": 0.00,
+                            "unit": "Ampere",
+                            "writable": true
+                        },
+                        {
+                            "id": "91e82743-2d97-41e9-8bf2-cb6034818079",
+                            "name": "currentPowerPhaseA",
+                            "displayName": "Current power on phase A",
+                            "displayNameAction": "Set current power on phase A",
+                            "type": "double",
+                            "defaultValue": 0.00,
+                            "unit": "Watt",
+                            "writable": true
+                        },
+                        {
+                            "id": "7ecbec82-71ec-4df3-b298-837e7f37aa4b",
+                            "name": "currentPowerPhaseB",
+                            "displayName": "Current power on phase B",
+                            "displayNameAction": "Set current power on phase B",
+                            "type": "double",
+                            "defaultValue": 0.00,
+                            "unit": "Watt",
+                            "writable": true
+                        },
+                        {
+                            "id": "eded281b-217b-48f5-8b91-b5142ea87505",
+                            "name": "currentPowerPhaseC",
+                            "displayName": "Current power on phase C",
+                            "displayNameAction": "Set current power on phase C",
+                            "type": "double",
+                            "defaultValue": 0.00,
+                            "unit": "Watt",
+                            "writable": true
+                        },
+                        {
+                            "id": "03deaf24-e515-4649-8979-ef8ae8ee7c02",
+                            "name": "voltagePhaseA",
+                            "displayName": "Voltage on phase A",
+                            "displayNameAction": "Set voltage on phase A",
+                            "type": "double",
+                            "defaultValue": 0.00,
+                            "unit": "Volt",
+                            "writable": true
+                        },
+                        {
+                            "id": "7e1514fb-7e69-4849-90c4-8f27dbd6453a",
+                            "name": "voltagePhaseB",
+                            "displayName": "Voltage on phase B",
+                            "displayNameAction": "Set voltage on phase B",
+                            "type": "double",
+                            "defaultValue": 0.00,
+                            "unit": "Volt",
+                            "writable": true
+                        },
+                        {
+                            "id": "b6e69a07-a362-4eef-87b7-5a670e332919",
+                            "name": "voltagePhaseC",
+                            "displayName": "Voltage on phase C",
+                            "displayNameAction": "Set voltage on phase C",
+                            "type": "double",
+                            "defaultValue": 0.00,
+                            "unit": "Volt",
+                            "writable": true
+                        }
+                    ]
+                },
+                {
+                    "id": "c3123967-f741-4fe1-a0d4-9a3e405d7e52",
+                    "name": "impulseSmartMeter",
+                    "displayName": "Impulse based energy meter",
+                    "createMethods": ["user"],
+                    "interfaces": ["smartmeterconsumer"],
+                    "settingsTypes": [
+                        {
+                            "id": "c361732b-68eb-447e-a434-e84031231871",
+                            "name": "impulsePerKwh",
+                            "displayName": "Impulse/kWh",
+                            "type": "int",
+                            "minValue": 1,
+                            "maxValue": 1000000,
+                            "defaultValue": 1000
+                        },
+                        {
+                            "id": "73c9acc3-8f76-40d7-a79b-a1f08bb308d4",
+                            "name": "impulseTimeframe",
+                            "displayName": "Timeframe for power calculation",
+                            "type": "int",
+                            "unit": "Seconds",
+                            "minValue": 1,
+                            "maxValue": 600,
+                            "defaultValue": 10
+                        }
+                    ],
+                    "stateTypes": [
+                        {
+                            "id": "5983d714-5f80-42d8-bee2-9228b6382b3b",
+                            "name": "currentPower",
+                            "displayName": "Current Power usage",
+                            "displayNameEvent": "Current Power usage changed",
+                            "type": "double",
+                            "defaultValue": 0.00,
+                            "unit": "Watt"
+                        },
+                        {
+                            "id": "5821edb7-e6cb-4e5a-9d0b-3375126d3367",
+                            "name": "totalEnergyConsumed",
+                            "displayName": "Energy",
+                            "displayNameEvent": "Energy changed",
+                            "type": "double",
+                            "defaultValue": 0.00,
+                            "unit": "KiloWattHour"
+                        },
+                        {
+                            "id": "9cd7e5ca-f8f8-48d5-9785-911ae75158c3",
+                            "name": "impulseInput",
+                            "displayName": "Impulse input",
+                            "displayNameEvent": "Impulse input changed",
+                            "displayNameAction": "Set impulse input",
+                            "type": "bool",
+                            "defaultValue": false,
+                            "writable": true,
+                            "ioType": "digitalOutput"
+                        }
+                    ]
+                },
+                {
+                    "id": "81418556-cae3-4803-aa0c-9c4b3304a3eb",
+                    "name": "energyStorage",
+                    "displayName": "Generic energy storage",
+                    "createMethods": ["user"],
+                    "interfaces": ["energystorage"],
+                    "settingsTypes": [
+                        {
+                            "id": "c170df55-029d-4b67-ae09-248645dd7040",
+                            "name": "capacity",
+                            "displayName": "Capacity",
+                            "type": "double",
+                            "unit": "KiloWattHour",
+                            "minValue": 0,
+                            "defaultValue": 50000
+                        },
+                        {
+                            "id": "8d875cb7-3a14-42d1-bf1b-759e5fd95a8f",
+                            "name": "criticalLevel",
+                            "displayName": "Critical battery level",
+                            "type": "int",
+                            "minValue": 0,
+                            "maxValue": 100,
+                            "defaultValue": 10
+                        }
+                    ],
+                    "stateTypes": [
+                        {
+                            "id": "8d1c43f9-4528-4797-8f6a-f7b91fbb91d0",
+                            "name": "currentPower",
+                            "displayName": "Current power",
+                            "displayNameAction": "Set current power",
+                            "type": "double",
+                            "unit": "Watt",
+                            "defaultValue": 0,
+                            "writable": true,
+                            "minValue": -10000,
+                            "maxValue": 10000,
+                            "ioType": "analogOutput"
+                        },
+                        {
+                            "id": "d37eed4a-befc-40d4-b435-40a761f99314",
+                            "name": "batteryLevel",
+                            "displayName": "Battery level",
+                            "displayNameAction": "Set battery level",
+                            "type": "int",
+                            "unit": "Percentage",
+                            "defaultValue": 0,
+                            "minValue": 0,
+                            "maxValue": 100,
+                            "writable": true,
+                            "ioType": "analogOutput"
+                        },
+                        {
+                            "id": "a61c0328-b982-46a5-9cc0-b4fa4d0ab84d",
+                            "name": "charging",
+                            "displayName": "Charging",
+                            "displayNameEvent": "Charging started or stopped",
+                            "displayNameAction": "Set charging",
+                            "type": "bool",
+                            "defaultValue": false,
+                            "writable": true,
+                            "ioType": "digitalOutput"
+                        },
+                        {
+                            "id": "e95dc037-002d-40a2-8c15-cd5489bd354a",
+                            "name": "batteryCritical",
+                            "displayName": "Battery critical",
+                            "displayNameEvent": "Battery entered or left critical state",
+                            "type": "bool",
+                            "defaultValue": false
+                        },
+                        {
+                            "id": "bf076970-20fe-46f7-b4bc-fe34ec833829",
+                            "name": "capacity",
+                            "displayName": "Capacity",
+                            "type": "double",
+                            "unit": "KiloWattHour",
+                            "defaultValue": 10000
+                        }
+                    ]
+                },
+                {
+                    "id": "c26478b3-dd64-445f-9859-8ef816025cb9",
+                    "name": "smartMeterConsumer",
+                    "displayName": "Generic smart meter consumer",
+                    "createMethods": ["user"],
+                    "interfaces": ["smartmeterconsumer"],
+                    "stateTypes": [
+                        {
+                            "id": "5a083458-e476-487d-ab8f-75e92cf16489",
+                            "name": "currentPower",
+                            "displayName": "Current Power usage",
+                            "displayNameEvent": "Current Power usage changed",
+                            "displayNameAction": "Set current power usage",
+                            "type": "double",
+                            "defaultValue": 0.00,
+                            "unit": "Watt",
+                            "writable": true
+                        },
+                        {
+                            "id": "ba10ef2c-e41f-4de2-a620-dff2ec5f025a",
+                            "name": "totalEnergyConsumed",
+                            "displayName": "Consumed energy",
+                            "displayNameEvent": "Consumed energy changed",
+                            "displayNameAction": "Set total consumed energy",
+                            "type": "double",
+                            "defaultValue": 0.00,
+                            "unit": "KiloWattHour",
+                            "writable": true
+                        }
+                    ]
+                },
+                {
+                    "id": "986acf96-3cdd-4a8d-8f5c-2ffe12fef1c9",
+                    "name": "smartMeterProducer",
+                    "displayName": "Generic smart meter producer",
+                    "createMethods": ["user"],
+                    "interfaces": ["smartmeterproducer"],
+                    "stateTypes": [
+                        {
+                            "id": "8fd67ad4-322d-46d7-a0fd-20fdbfc12bc5",
+                            "name": "currentPower",
+                            "displayName": "Current Power production",
+                            "displayNameEvent": "Current Power production changed",
+                            "displayNameAction": "Set current power production",
+                            "type": "double",
+                            "defaultValue": 0.00,
+                            "unit": "Watt",
+                            "writable": true
+                        },
+                        {
+                            "id": "58a1212c-ab6e-4631-b08d-712cdde295c7",
+                            "name": "totalEnergyProduced",
+                            "displayName": "Produced energy",
+                            "displayNameEvent": "Produced energy changed",
+                            "displayNameAction": "Set total produced energy",
+                            "type": "double",
+                            "defaultValue": 0.00,
+                            "unit": "KiloWattHour",
+                            "writable": true
+                        }
+                    ]
+                },
+                {
+                    "id": "6f453eaa-7594-4be8-a92d-14878193071a",
+                    "name": "wallbox",
+                    "displayName": "Generic wallbox",
+                    "createMethods": ["user"],
+                    "interfaces": ["evcharger", "smartmeterconsumer", "connectable"],
+                    "settingsTypes": [
+                        {
+                            "id": "03da62b5-9b6a-4cd0-8e68-8c93da98e2fe",
+                            "name": "minChargingCurrent",
+                            "displayName": "Minimum charging current",
+                            "type": "uint",
+                            "minValue": 0,
+                            "maxValue": 6,
+                            "defaultValue": 6
+                        },
+                        {
+                            "id": "017b2d92-eb57-4177-b489-437b04e212eb",
+                            "name": "maxChargingCurrent",
+                            "displayName": "Maximum charging current",
+                            "type": "double",
+                            "minValue": 6,
+                            "maxValue": 64,
+                            "defaultValue": 32
+                        }
+                    ],
+                    "stateTypes": [
+                        {
+                            "id": "1cd41b7c-e030-496e-97b2-6ad22063bf3e",
+                            "name": "connected",
+                            "displayName": "Connected",
+                            "type": "bool",
+                            "cached": false,
+                            "defaultValue": true
+                        },
+                        {
+                            "id": "1e0890e5-065a-455a-a068-10b0231897f4",
+                            "name": "maxChargingCurrent",
+                            "displayName": "Maximum charging current",
+                            "displayNameAction": "Set maximum charging current",
+                            "type": "double",
+                            "unit": "Ampere",
+                            "minValue": 6,
+                            "maxValue": 32,
+                            "defaultValue": 6,
+                            "writable": true
+                        },
+                        {
+                            "id": "51c7b606-1eb0-418a-8203-3f0fb9d6e454",
+                            "name": "power",
+                            "displayName": "Charging allowed",
+                            "displayNameAction": "Set charging allowed",
+                            "type": "bool",
+                            "defaultValue": false,
+                            "writable": true
+                        },
+                        {
+                            "id": "e9cc633d-35a6-4a86-8e97-14b12ba06d8e",
+                            "name": "pluggedIn",
+                            "displayName": "Plugged in",
+                            "displayNameAction": "Set plugged in",
+                            "type": "bool",
+                            "defaultValue": false,
+                            "writable": true
+                        },
+                        {
+                            "id": "b5d43614-7ed0-4c6e-b48a-f74aa9884769",
+                            "name": "charging",
+                            "displayName": "Charging",
+                            "displayNameAction": "Set charging",
+                            "type": "bool",
+                            "defaultValue": false,
+                            "writable": true
+                        },
+                        {
+                            "id": "08fbe34e-735d-4ce5-81c7-ea1c7b07877b",
+                            "name": "phaseCount",
+                            "displayName": "Used phase count",
+                            "displayNameAction": "Set phase count",
+                            "type": "uint",
+                            "minValue": 1,
+                            "maxValue": 3,
+                            "defaultValue": 3,
+                            "writable": true
+                        },
+                        {
+                            "id": "68239a43-c627-4b31-bc48-e8a814066cc5",
+                            "name": "desiredPhaseCount",
+                            "displayName": "Desired phase count",
+                            "displayNameAction": "Set desired phase count",
+                            "type": "uint",
+                            "possibleValues": [1, 3],
+                            "minValue": 1,
+                            "maxValue": 3,
+                            "defaultValue": 3,
+                            "writable": true
+                        },
+                        {
+                            "id": "596a002d-77f4-410c-8ca9-3a4bb8051328",
+                            "name": "currentPower",
+                            "displayName": "Current power consumption",
+                            "displayNameAction": "Set current power",
+                            "type": "double",
+                            "unit": "Watt",
+                            "defaultValue": 0,
+                            "writable": true
+                        },
+                        {
+                            "id": "c3b4303f-7267-4401-b2da-2378d39d762d",
+                            "name": "totalEnergyConsumed",
+                            "displayName": "Total energy consumption",
+                            "displayNameAction": "Set total energy consumption",
+                            "type": "double",
+                            "unit": "KiloWattHour",
+                            "defaultValue": 0,
+                            "writable": true
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

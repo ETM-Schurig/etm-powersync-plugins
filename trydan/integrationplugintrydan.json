@@ -1,0 +1,307 @@
+{
+    "name": "Trydan",
+    "displayName": "V2C Trydan (HTTP)",
+    "id": "b45c1e73-bf74-4e3c-8406-b7e7ee880e44",
+    "paramTypes": [],
+    "vendors": [
+        {
+            "id": "56c3e7bb-2db8-4002-b799-9e21530e6fb9",
+            "name": "v2c",
+            "displayName": "V2C",
+            "thingClasses": [
+                {
+                    "id": "88cd75b4-31f9-4b2b-9599-a95802f6bddf",
+                    "name": "trydan",
+                    "displayName": "Trydan (HTTP)",
+                    "interfaces": [
+                        "evcharger",
+                        "smartmeterconsumer",
+                        "connectable"
+                    ],
+                    "createMethods": [
+                        "discovery",
+                        "user"
+                    ],
+                    "discoveryType": "weak",
+                    "paramTypes": [
+                        {
+                            "id": "b00edc7a-f4a2-4549-b2ba-87b0e759af1e",
+                            "name": "address",
+                            "displayName": "IP address",
+                            "type": "QString",
+                            "inputType": "IPv4Address",
+                            "defaultValue": ""
+                        },
+                        {
+                            "id": "c2cae98c-8f59-43b8-bb89-b3572ede8e20",
+                            "name": "wiring",
+                            "displayName": "Wiring of this Trydan (installer: single-phase or three-phase model and supply)",
+                            "type": "QString",
+                            "allowedValues": [
+                                "Choose the wiring",
+                                "Single phase - 1 x 230 V, up to 7.4 kW",
+                                "Three phase - 3 x 400 V, up to 22 kW"
+                            ]
+                        }
+                    ],
+                    "settingsTypes": [
+                        {
+                            "id": "70be47c1-2611-4f71-8693-7ac4cf857f0b",
+                            "name": "suspendInternalOptimizer",
+                            "displayName": "Suspend the charger's own power control (PauseDynamic)",
+                            "type": "bool",
+                            "defaultValue": true
+                        }
+                    ],
+                    "stateTypes": [
+                        {
+                            "id": "7f64f995-0354-4837-8d63-98e6205abb48",
+                            "name": "connected",
+                            "displayName": "Connected",
+                            "type": "bool",
+                            "defaultValue": false,
+                            "cached": false
+                        },
+                        {
+                            "id": "842d52cc-a738-4c8e-9d66-44210c9f5314",
+                            "name": "pluggedIn",
+                            "displayName": "Plugged in",
+                            "type": "bool",
+                            "defaultValue": false,
+                            "cached": false
+                        },
+                        {
+                            "id": "3f4ccdf4-cde2-4a02-8d91-f8a5d5528679",
+                            "name": "charging",
+                            "displayName": "Charging",
+                            "type": "bool",
+                            "defaultValue": false,
+                            "cached": false
+                        },
+                        {
+                            "id": "bc44933d-a7a7-4b6b-a465-ee0ca8074f5b",
+                            "name": "power",
+                            "displayName": "Charging enabled",
+                            "displayNameAction": "Set charging enabled",
+                            "type": "bool",
+                            "defaultValue": true,
+                            "writable": true
+                        },
+                        {
+                            "id": "587959d4-0913-4bd7-8afa-e787176c4403",
+                            "name": "maxChargingCurrent",
+                            "displayName": "Maximum charging current",
+                            "displayNameAction": "Set maximum charging current",
+                            "type": "double",
+                            "unit": "Ampere",
+                            "minValue": 6,
+                            "maxValue": 32,
+                            "stepSize": 1,
+                            "defaultValue": 6,
+                            "writable": true
+                        },
+                        {
+                            "id": "eea3c86a-f982-4e0b-8472-d01eb2b33afb",
+                            "name": "currentPower",
+                            "displayName": "Charging power",
+                            "type": "double",
+                            "unit": "Watt",
+                            "defaultValue": 0,
+                            "cached": false
+                        },
+                        {
+                            "id": "92ca4eb7-1967-4292-93de-123fd790a8f1",
+                            "name": "totalEnergyConsumed",
+                            "displayName": "Total energy consumed",
+                            "type": "double",
+                            "unit": "KiloWattHour",
+                            "defaultValue": 0,
+                            "cached": true
+                        },
+                        {
+                            "id": "4f457e58-f96f-450d-9fa0-c6390d4ad8b9",
+                            "name": "sessionEnergy",
+                            "displayName": "Session energy",
+                            "type": "double",
+                            "unit": "KiloWattHour",
+                            "defaultValue": 0,
+                            "cached": true
+                        },
+                        {
+                            "id": "81d9e2cb-6ac1-46aa-b859-144972c8f9e7",
+                            "name": "chargeEnergy",
+                            "displayName": "Charge energy (raw charger counter)",
+                            "type": "double",
+                            "unit": "KiloWattHour",
+                            "defaultValue": 0,
+                            "cached": true
+                        },
+                        {
+                            "id": "807074c1-dc29-4d91-a054-33b5a7b293ac",
+                            "name": "currentPhaseA",
+                            "displayName": "Current phase A",
+                            "type": "double",
+                            "unit": "Ampere",
+                            "defaultValue": 0,
+                            "cached": false
+                        },
+                        {
+                            "id": "a233b78b-a66e-43c3-9cd5-7c1f6250248b",
+                            "name": "currentPhaseB",
+                            "displayName": "Current phase B",
+                            "type": "double",
+                            "unit": "Ampere",
+                            "defaultValue": 0,
+                            "cached": false
+                        },
+                        {
+                            "id": "08929b1f-844a-4942-b220-9cf3020d5206",
+                            "name": "currentPhaseC",
+                            "displayName": "Current phase C",
+                            "type": "double",
+                            "unit": "Ampere",
+                            "defaultValue": 0,
+                            "cached": false
+                        },
+                        {
+                            "id": "0ecdc107-910b-4470-b5cc-d1228c114d22",
+                            "name": "voltagePhaseA",
+                            "displayName": "Voltage phase A",
+                            "type": "double",
+                            "unit": "Volt",
+                            "defaultValue": 0,
+                            "cached": false
+                        },
+                        {
+                            "id": "db1656c9-7ee4-4c31-8940-1a65d5f80691",
+                            "name": "voltagePhaseB",
+                            "displayName": "Voltage phase B",
+                            "type": "double",
+                            "unit": "Volt",
+                            "defaultValue": 0,
+                            "cached": false
+                        },
+                        {
+                            "id": "33656d5d-e207-4205-9749-0a1020ea70e9",
+                            "name": "voltagePhaseC",
+                            "displayName": "Voltage phase C",
+                            "type": "double",
+                            "unit": "Volt",
+                            "defaultValue": 0,
+                            "cached": false
+                        },
+                        {
+                            "id": "05839ac8-8eb2-4185-9adf-53d47157c881",
+                            "name": "phaseMeasurementsAvailable",
+                            "displayName": "Per-phase measurements available",
+                            "type": "bool",
+                            "defaultValue": false,
+                            "cached": false
+                        },
+                        {
+                            "id": "2aaf627e-302e-40e4-b546-820bb6d66203",
+                            "name": "phaseCount",
+                            "displayName": "Phases in use",
+                            "type": "uint",
+                            "defaultValue": 1,
+                            "minValue": 1,
+                            "maxValue": 3,
+                            "cached": false
+                        },
+                        {
+                            "id": "fadc0f79-acc2-4b31-8b8c-11c7f1a67741",
+                            "name": "desiredPhaseCount",
+                            "displayName": "Desired number of charging phases",
+                            "displayNameAction": "Set desired number of charging phases",
+                            "type": "uint",
+                            "possibleValues": [
+                                1,
+                                3
+                            ],
+                            "defaultValue": 1,
+                            "minValue": 1,
+                            "maxValue": 3,
+                            "writable": true
+                        },
+                        {
+                            "id": "3d51b913-73ab-4e29-9c66-85f3c60396bc",
+                            "name": "chargeMode",
+                            "displayName": "Phase mode of the charger",
+                            "type": "QString",
+                            "possibleValues": [
+                                "Unknown",
+                                "Single phase",
+                                "Three phase",
+                                "Mixed"
+                            ],
+                            "defaultValue": "Unknown",
+                            "cached": false
+                        },
+                        {
+                            "id": "8cc57ac9-46b8-49dd-9385-b4c5c2ee118b",
+                            "name": "wiringCheck",
+                            "displayName": "Wiring check (voltages on L2/L3)",
+                            "type": "QString",
+                            "possibleValues": [
+                                "Not checked",
+                                "Consistent",
+                                "Voltage on L2/L3 but set as single phase",
+                                "No voltage on L2/L3 but set as three phase"
+                            ],
+                            "defaultValue": "Not checked",
+                            "cached": false
+                        },
+                        {
+                            "id": "77041ccd-1815-4040-ae40-ca782cebb7b8",
+                            "name": "locked",
+                            "displayName": "Locked on the charger",
+                            "type": "bool",
+                            "defaultValue": false,
+                            "cached": false
+                        },
+                        {
+                            "id": "e65e9051-84cc-4620-8e08-c1dd53f74a0c",
+                            "name": "internalOptimizerActive",
+                            "displayName": "Charger's own power control configured (Dynamic)",
+                            "type": "bool",
+                            "defaultValue": false,
+                            "cached": false
+                        },
+                        {
+                            "id": "b3710eef-0ebf-447d-a644-070e44418c1c",
+                            "name": "optimizerSuspended",
+                            "displayName": "Charger's own power control suspended (PauseDynamic)",
+                            "type": "bool",
+                            "defaultValue": false,
+                            "cached": false
+                        },
+                        {
+                            "id": "56d6c617-d98b-445c-bf1b-ca911dad0e95",
+                            "name": "slaveError",
+                            "displayName": "Charger error code",
+                            "type": "uint",
+                            "defaultValue": 0,
+                            "cached": false
+                        },
+                        {
+                            "id": "4aef1148-e066-4360-8624-b01f5b81d1bc",
+                            "name": "firmwareVersion",
+                            "displayName": "Firmware version",
+                            "type": "QString",
+                            "defaultValue": "",
+                            "cached": true
+                        }
+                    ],
+                    "actionTypes": [
+                        {
+                            "id": "d4729f09-3108-4867-8143-6849a0726200",
+                            "name": "refresh",
+                            "displayName": "Read the charger now",
+                            "paramTypes": []
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,348 @@
+etm-powersync-plugins (1.15.2+etm22) trixie; urgency=medium
+
+  * edf: new plugin powersync-plugin-edf. Linky meter by its historical TIC
+    (serial port, 7E1 or 8N1 read with the 7th bit masked), and an EDF
+    contract (Base, HC/HP, EJP; Tempo listed, not yet supported) priced from
+    the regulated tariff or entered prices. Price slots published for the
+    energy engine. EJP: peak days read on the meter (notice at 06:30, peak
+    at 07:00), or declared by hand the day before; a day neither read nor
+    declared is presumed normal. Season counter of peak days, counted from
+    the start of each peak. Discrepancy between the meter's ISOUSC and the
+    subscribed power entered is reported. No network access.
+
+ -- Patrick Schurig <etm.schurig@gmail.com>  Sat, 07 Nov 2026 07:21:44 +0100
+
+etm-powersync-plugins (1.15.2+etm21) trixie; urgency=medium
+
+  * v2c: powersync-plugin-v2c (HTTP) no longer depends on
+    powersync-plugin-modbus-v2c; the Modbus plugin is installed separately
+    when needed.
+
+ -- Patrick Schurig <etm.schurig@gmail.com>  Sat, 31 Oct 2026 08:15:48 +0100
+
+etm-powersync-plugins (1.15.2+etm20) trixie; urgency=medium
+
+  * trydan: the published power, charging and plugged-in states agree with
+    the phase currents on every reading: ChargePower is used when it matches
+    the sum of current x voltage (within 300 W or 20 %), the measured value
+    otherwise; a charger that draws current is charging and plugged in.
+  * trydan: no wiring alarm when the charger is in single-phase or mixed
+    mode (L2/L3 are open by design); the check stays NotChecked.
+
+ -- Patrick Schurig <etm.schurig@gmail.com>  Fri, 30 Oct 2026 07:51:14 +0100
+
+etm-powersync-plugins (1.15.2+etm19) trixie; urgency=medium
+
+  * trydan: new plugin for V2C Trydan chargers over their local HTTP API
+    (pause and resume, charging current, single / three phase mode, each
+    command read back). A setpoint below the minimum of the charger pauses
+    it; the wiring (single or three phase) is chosen by the installer when
+    the charger is added, with no default, and checked against the voltages
+    on L2/L3 when the charger reports them.
+  * debian: the plugin is packaged as powersync-plugin-v2c. That name used to
+    be the Modbus V2C plugin, now powersync-plugin-modbus-v2c
+    (etm-powersync-plugins-modbus 1.15.2+etm17); this package depends on it
+    for the transition, so that an upgrade keeps the chargers set up over
+    Modbus.
+
+ -- Patrick Schurig <etm.schurig@gmail.com>  Wed, 28 Oct 2026 09:00:00 +0100
+
+etm-powersync-plugins (1.15.2+etm18) trixie; urgency=medium
+
+  * openmeteo: a site without entered coordinates is not set up. The latitude
+    and longitude fields default to a sentinel outside the valid range (no
+    longer a real place), the field labels say they are required, and a site
+    or a PV plane without valid coordinates emits nothing. Existing sites are
+    unchanged; reconfiguring a site without coordinates is refused instead of
+    moving it. New sitecoordinates tests.
+  * openmeteo: example coordinates of the tests and docs are a neutral point;
+    internal work-tracking references removed from comments.
+  * keba, generic-energy: no change, rebuilt with the release.
+
+ -- Patrick Schurig <etm.schurig@gmail.com>  Mon, 26 Oct 2026 08:10:00 +0100
+
+etm-powersync-plugins (1.15.2+etm17) trixie; urgency=medium
+
+  * New package powersync-plugin-generic-energy: the nymea genericenergy
+    plugin leaves the separate nymea-plugins-genericthings copy and joins
+    this fork. Imported from upstream 1.15.2 unchanged, then the three ETM
+    commits applied on top. It provides, replaces and conflicts with
+    nymea-plugin-generic-energy, and replaces and conflicts with the old
+    monolithic nymea-plugin-genericthings, as upstream does. The nine other
+    generic-* plugins stay the nymea packages.
+  * genericenergy: removing an impulse smart meter destroyed nothing - both
+    branches of thingRemoved() tested the same thing class, so its timer
+    kept running and writing to a removed thing. Upstream defect, to be
+    proposed upstream.
+  * genericenergy: smartMeterConsumer, smartMeterProducer, energyMeter and
+    wallbox integrate currentPower into their energy counters every second,
+    over real elapsed time. Counters are monotonic; the sign of the power
+    picks the counter (negative = produced, per the nymea interface). An
+    action writing a counter suspends the integration of that thing for
+    15 min. impulseSmartMeter keeps its own per-impulse counting.
+  * Supersedes powersync-plugin-generic-energy 1.14.2+etm3, built from the
+    former copy.
+  * Not deployed.
+
+ -- Patrick Schurig <etm.schurig@gmail.com>  Sun, 18 Oct 2026 14:20:00 +0200
+
+etm-powersync-plugins (1.15.2+etm16) trixie; urgency=medium
+
+  * openmeteo: the scalar states of a plane (forecastPvPower, forecastEnergy*)
+    follow the decision of the run, as the curve does: corrected for module
+    temperature together with forecastCurveTransport, or neither. Energies
+    are sums of the same rounded hourly powers as p. forecastPvPower uses
+    current.temperature_2m, now requested; when a corrected run lacks it, the
+    state is not updated rather than published uncorrected.
+  * The plane's forecast request sends the site's elevation, like the site's
+    request. Measured on two replies of the same minute: GTI identical,
+    tempC +0.1 K on 1 slot of 48, p unchanged. forecastCurveTransport keeps
+    v 2, its fields and its computation, checked byte for byte against the
+    etm15 code on four recorded replies.
+  * A failed source is retried after 5 min x 2^(n-1), capped at its interval,
+    +/-60 s of jitter, reset at the first success - for the forecast pass of
+    a site and its planes (retried as a whole), the satellite of the site and
+    of each plane, and the ensemble. It was asked again every minute. A 200
+    reply that carries no data counts as a failure.
+  * New plane state observedGtiSeries (v 1): the hourly satellite GTI of
+    yesterday and today, slot i = [t0 + i*3600, t0 + (i+1)*3600), null when
+    not observed. observedGti and observedGtiTime are unchanged.
+  * New plane states forecastWeatherSpreadTime and forecastWeatherSpreadValid.
+    Beyond 21600 s without a successful spread, the spread percentages become
+    NaN (null over JSON-RPC), never 0, and Valid turns false.
+  * New site state forecastHourlyWeather (v 1), for the app: WMO weather code,
+    is_day and temperature_2m per hour for today and tomorrow, each value
+    instantaneous at the start of its slot, null when absent. The three
+    variables ride on the site's existing hourly request: no new request, no
+    new host.
+  * CONTRACT_A v4 and README describe all of the above.
+  * Not deployed. Built for testing only; the keba package rebuilt from the
+    same source is not to be published.
+
+ -- Patrick Schurig <etm.schurig@gmail.com>  Thu, 15 Oct 2026 10:00:00 +0200
+
+etm-powersync-plugins (1.15.2+etm15) trixie; urgency=medium
+
+  * openmeteo: forecastCurveTransport v2. The hourly curve of each plane is
+    corrected for module temperature (NOCT model, declared parameters, nothing
+    learned): Tcell = T2m + GTI x (NOCT - 20) / 800, then
+    p = max(0, GTI x kWp x PR x (1 + coeff/100 x (Tcell - 25))). No AC limit:
+    clipping is a site parameter, applied by ems after the sum of the planes.
+  * The correction applies to a whole run or not at all. Without a complete
+    temperature series the run is published uncorrected, corrections = [],
+    and p equals v1 bit for bit.
+  * The payload keeps every v1 field and adds gti[48] (raw W/m2) and tempC[48]
+    (temperature_2m, null where absent, never 0), for the record. corrections
+    becomes a list, ["temperature"] or [], instead of the string "none"; v = 2.
+  * New plane parameters tempCoeffPctPerK (-0.37 %/K, [-1, 0]) and noctC
+    (45 C, [30, 70]); existing planes take the defaults. temperature_2m is added
+    to the existing hourly request of the plane: no new host, no new data sent.
+  * Deploy only after ems 1.15.2+etm66, which reads v1 and v2. An older ems
+    refuses every v2 curve.
+  * CONTRACT_A realigned on the code (state names, request, parameters, failure
+    behaviour), then sec. 2.6 and 5.9 describe the correction and v2.
+
+ -- ETM-Schurig SARL <contact@etm-schurig.eu>  Tue, 13 Oct 2026 10:00:00 +0200
+
+etm-powersync-plugins (1.15.2+etm14) trixie; urgency=medium
+
+  * openmeteo: a site now drives the hourly forecast of all its planes, in one
+    pass, so every plane of a site is sampled at the same instant and carries the
+    same run. Planes were gated independently — each with its own last-refresh
+    time and its own re-rolled jitter — so two planes of one site drifted apart
+    within minutes, and at each run publication one picked the new run up to an
+    hour before the others. A consumer summing the planes of a site (the right
+    thing to do, since the curve is compared against measured production, which is
+    the roof total) could only block, or write a chimera: half the roof current,
+    half stale, published as the whole.
+  * CONTRACT_A sec. 5.7 states the guarantee; sec. 3.3 corrects the rule for
+    forecastIssuedAt == 0 — store the age as NULL, never substitute an instant,
+    but do not discard a perfectly usable curve for a missing label.
+
+ -- ETM-Schurig SARL <contact@etm-schurig.eu>  Wed, 09 Sep 2026 08:20:00 +0200
+
+etm-powersync-plugins (1.15.2+etm13) trixie; urgency=medium
+
+  * openmeteo: the plugin timer now ticks every minute instead of every 15. With a
+    900 s tick the +/-60 s jitter could only choose between the 60 min and the
+    75 min tick — measured overnight in testing: 67 min mean instead of 60. The
+    real defect was not the mean but that a whole fleet stayed aligned on the same
+    quarter-hour grid, so the jitter de-correlated almost nothing, which is its
+    only purpose. A jitter needs a resolution finer than the spread it produces.
+  * CONTRACT_A sec. 3.1 now states the cadence that actually happens.
+
+ -- ETM-Schurig SARL <contact@etm-schurig.eu>  Wed, 09 Sep 2026 06:30:00 +0200
+
+etm-powersync-plugins (1.15.2+etm12) trixie; urgency=medium
+
+  * RETRACTION. The 1.15.2+etm11 entry states that "a new run with the same
+    numbers still differs by issuedAt and is published as a genuine new
+    revision". That is wrong and is retracted here. The plugin deduplicates on
+    the whole payload, issuedAt included, so such a run is indeed republished —
+    but it is not a revision, the forecast having not changed. Deduplicating on
+    the p values alone, and updating issuedAt on the existing row, belongs to the
+    consumer. CONTRACT_A sec. 5.4 carries the corrected wording.
+  * openmeteo: the forecast curve embedded a stale revision key. The plane read
+    forecastIssuedAt from the site's state, which races the asynchronous
+    meta.json round trip, so the curve carried the PREVIOUS run — seen in
+    testing after a night, wrong by a whole AROME run (3 h). The curve is now
+    built inside the provenance continuation and never reads the site's state. A
+    revision keyed on the wrong run is precisely what sec. 3.3 exists to
+    prevent.
+
+ -- ETM-Schurig SARL <contact@etm-schurig.eu>  Wed, 09 Sep 2026 06:10:00 +0200
+
+etm-powersync-plugins (1.15.2+etm11) trixie; urgency=medium
+
+  * openmeteo: publish forecastCurveTransport on the PV plane — a QVariantMap
+    carrying the 48-hour forecast power curve for ems to store. Typed and declared
+    in the ThingClass rather than a JSON string, so there is no second encoding
+    layer inside a declared state, and a probe reading it sees what it carries.
+  * The window is whole days, today 00:00 local through tomorrow 23:00, elapsed
+    hours included. Fixed day boundaries are what make two revisions of the same
+    day comparable slot by slot; a rolling future-only window would shrink through
+    the day and no two revisions would line up.
+  * cached: false — a curve reloaded at startup would be stale and would misdate
+    the first revision. Never logged, in the log engine or in qCDebug.
+  * Published only when it changes: setStateValue discards an unchanged value, so
+    an identical curve is neither stored nor notified. A new run with the same
+    numbers still differs by issuedAt and is published as a genuine new revision.
+  * model and issuedAt travel inside the payload, so a stored revision carries its
+    own key with no second lookup.
+
+ -- ETM-Schurig SARL <contact@etm-schurig.eu>  Tue, 08 Sep 2026 17:50:00 +0200
+
+etm-powersync-plugins (1.15.2+etm10) trixie; urgency=medium
+
+  * openmeteo: publish forecastIssuedAt (model run initialisation, the revision
+    key) and forecastAvailableAt (publication, informational only). The gap
+    between the two is 4 to 9 hours and varies by model — measured 2026-09-08 —
+    so dating a revision on availability would attribute it to a run that did not
+    yet exist, plausibly and undetectably.
+  * openmeteo: meta.json is fetched with If-None-Match. It carries an ETag whose
+    first field is the publication timestamp, so 304 with an empty body means the
+    run has not changed, and the ETag itself is the new-run signal.
+  * openmeteo: composite model names have no meta.json — meteofrance_seamless,
+    best_match, icon_seamless all answer HTTP 500, they are blends and not grid
+    domains. The model is translated to a provenance domain: seamless maps to
+    meteofrance_arome_france_hd, whose run carries the first 60 hours; best_match
+    maps to nothing, because it is resolved per location and has no single run
+    identity.
+  * openmeteo: when meta.json does not answer, both states go to 0 rather than to
+    a substitute. A consumer must skip the revision; substituting the reception
+    time would misdate it by hours. CONTRACT_A sec. 3.3.
+
+ -- ETM-Schurig SARL <contact@etm-schurig.eu>  Tue, 08 Sep 2026 17:20:00 +0200
+
+etm-powersync-plugins (1.15.2+etm8) trixie; urgency=medium
+
+  * openmeteo: implement the model fallback of CONTRACT_A sec. 3.2, and make
+    forecastModel a provenance rather than an intention. It published the
+    configured model unconditionally, which was only ever correct because no
+    fallback existed. A model that does not serve radiation answers HTTP 200
+    with nulls, not an error — meteofrance_arome_france_hd serves none at all —
+    so the reply is now inspected and best_match is used when nothing usable
+    came back. forecastModel is set only from the request that actually served
+    data, on the site and on the plane alike.
+
+ -- ETM-Schurig SARL <contact@etm-schurig.eu>  Tue, 08 Sep 2026 16:55:00 +0200
+
+etm-powersync-plugins (1.15.2+etm7) trixie; urgency=medium
+
+  * openmeteo: back to a pure weather plugin. The PV plane ThingClass, the
+    irradiance-to-power conversion, the pre-integrated energy windows and the
+    ensemble spread are removed. They move to the ems experience plugin, which
+    queries the Open-Meteo API itself and stores the forecast curve in its own
+    database — which is what allows the forecast to be drawn against measured
+    production, and what no scalar state could give.
+  * openmeteo: drops the ensembleBaseUrl and ensembleModel plugin parameters,
+    unused now that no plane is served.
+  * What was measured while building the PV part is handed over as a
+    specification, not lost: docs/SPEC_pv_forecast_for_ems.md.
+
+ -- ETM-Schurig SARL <contact@etm-schurig.eu>  Tue, 08 Sep 2026 16:40:00 +0200
+
+etm-powersync-plugins (1.15.2+etm6) trixie; urgency=medium
+
+  * openmeteo: propagate a site refresh to its planes only on reconfigure. Doing
+    it on every setup doubled all plane requests at each nymead restart, since
+    each plane already runs its own setupThing. isInitialSetup() cannot make this
+    distinction — the reconfigure path passes initialSetup=true as well — so the
+    guard is isReconfigure().
+
+ -- ETM-Schurig SARL <contact@etm-schurig.eu>  Tue, 08 Sep 2026 15:45:00 +0200
+
+etm-powersync-plugins (1.15.2+etm5) trixie; urgency=medium
+
+  * openmeteo: refresh a site's PV planes when the site itself is reconfigured. A
+    plane reads its coordinates from its parent, so moving a site left its planes
+    computing PV for the previous location until their own hourly tick — up to an
+    hour of plausible numbers for the wrong place. Found by reconfiguring the site
+    alone on a test installation and watching which requests went out.
+
+ -- ETM-Schurig SARL <contact@etm-schurig.eu>  Tue, 08 Sep 2026 15:40:00 +0200
+
+etm-powersync-plugins (1.15.2+etm4) trixie; urgency=medium
+
+  * openmeteo: log the satellite GTI and ensemble spread requests. Three of the
+    five requests a cycle emits were traced, two were silent. A silent request is
+    the exact shape of the "current=" defect this release fixes: it failed with
+    HTTP 200 and no error field, and left no trace to notice it by.
+
+ -- ETM-Schurig SARL <contact@etm-schurig.eu>  Tue, 08 Sep 2026 15:20:00 +0200
+
+etm-powersync-plugins (1.15.2+etm3) trixie; urgency=medium
+
+  * openmeteo: a PV plane can now actually be created. It was declared with
+    createMethods "user", but Integrations.AddThing carries no parentId in the
+    JSON-RPC protocol, so a plane could never learn which site it belongs to and
+    resolveCoordinates would always fail. Planes are now discovered instead: one
+    descriptor per configured site, each carrying the parent id, which nymea
+    applies at creation. Found by pairing in testing, not by compiling.
+
+ -- ETM-Schurig SARL <contact@etm-schurig.eu>  Tue, 08 Sep 2026 15:15:00 +0200
+
+etm-powersync-plugins (1.15.2+etm2) trixie; urgency=medium
+
+  * openmeteo: implement Contract A. Every state now carries its regime in its
+    name — forecast* for prediction, observed* for satellite observation. The ten
+    states mandated by the nymea weather/daylightsensor interfaces keep their
+    names; prefixing them would break interface conformance.
+  * openmeteo: publish PV power derived from GTI, plus pre-integrated energy over
+    rolling 3/6/12 h windows, rest of today and tomorrow. Scalars only, no time
+    series in a nymea state.
+  * openmeteo: fix silently broken satellite observation. The satellite endpoint
+    ignores "current=" — HTTP 200, no error field, simply no current block — so
+    the observed states were never set. Now uses hourly + past_days and takes the
+    last non-null sample.
+  * openmeteo: add satellite-observed GTI per plane, and ensemble weather spread
+    computed on GTI rather than GHI (GHI understates the dispersion of the
+    published quantity, in the optimistic direction).
+  * openmeteo: poll each upstream product at its own rate — forecast 1 h,
+    satellite 1 h, ensemble 3 h — instead of 15 min for all three.
+  * openmeteo: add performanceRatio thing parameter, default 1.00.
+  * Built against nymea 1.15.2.
+
+ -- ETM-Schurig SARL <contact@etm-schurig.eu>  Tue, 08 Sep 2026 14:30:00 +0200
+
+etm-powersync-plugins (1.15.2+etm1) trixie; urgency=medium
+
+  * Rebuild against nymea 1.15.2 (base commune des canaux stable/testing/nightly).
+  * Premier build arm64 (cross, conteneur build-cross-arm64) pour le parc Pi.
+
+ -- ETM-Schurig SARL <contact@etm-schurig.eu>  Tue, 08 Sep 2026 09:00:00 +0200
+
+etm-powersync-plugins (1.15.0+etm2) trixie; urgency=medium
+
+  * Add powersync-plugin-keba: fork of the nymea KEBA plugin, patched for the
+    French P30 PV-Edition with socket shutter (KC-P30-ESS...).
+  * Provides/Replaces/Conflicts nymea-plugin-keba.
+
+ -- ETM-Schurig SARL <contact@etm-schurig.eu>  Sun, 31 May 2026 12:00:00 +0200
+
+etm-powersync-plugins (1.15.0+etm1) trixie; urgency=medium
+
+  * Initial ETM packaging of the openmeteo integration plugin.
+  * Built against nymea 1.15.0.
+
+ -- ETM-Schurig SARL <contact@etm-schurig.eu>  Sun, 31 May 2026 10:00:00 +0200

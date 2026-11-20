@@ -1,0 +1,13 @@
+{
+    "title": "EDF : contrat et compteur Linky",
+    "tagline": "Prix du contrat (Base, HC/HP, EJP), compteur Linky par la TIC historique, annonce EJP de la veille (optionnelle).",
+    "stability": "consumer",
+    "offline": true,
+    "technologies": [
+        "serial-port",
+        "network"
+    ],
+    "categories": [
+        "energy"
+    ]
+}

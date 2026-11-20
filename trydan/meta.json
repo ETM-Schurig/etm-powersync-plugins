@@ -1,0 +1,12 @@
+{
+    "title": "V2C Trydan (HTTP)",
+    "tagline": "Control V2C Trydan EV chargers over their local HTTP API, including 1/3 phase switching.",
+    "stability": "consumer",
+    "offline": true,
+    "technologies": [
+        "network"
+    ],
+    "categories": [
+        "energy"
+    ]
+}

@@ -1,0 +1,613 @@
+{
+    "name": "OpenMeteo",
+    "displayName": "Open-Meteo",
+    "id": "d1ed979d-b802-463e-a51f-fef79245cfdc",
+    "paramTypes": [
+        {
+            "id": "590cf57d-c1ca-4645-a443-7c5a6c97db93",
+            "name": "baseUrl",
+            "displayName": "Base URL (forecast)",
+            "type": "QString",
+            "defaultValue": "https://api.open-meteo.com"
+        },
+        {
+            "id": "6cd410dc-7f1c-4681-8e47-8df525252d2d",
+            "name": "satelliteBaseUrl",
+            "displayName": "Base URL (satellite radiation)",
+            "type": "QString",
+            "defaultValue": "https://satellite-api.open-meteo.com"
+        },
+        {
+            "id": "f904db60-527a-47b2-9dc5-371ac5f7e164",
+            "name": "weatherModel",
+            "displayName": "Forecast model",
+            "type": "QString",
+            "defaultValue": "meteofrance_seamless"
+        },
+        {
+            "id": "7d3a1c92-4b6e-4a51-9c08-2f1d6e0a5b74",
+            "name": "ensembleBaseUrl",
+            "displayName": "Base URL (ensemble spread)",
+            "type": "QString",
+            "defaultValue": "https://ensemble-api.open-meteo.com"
+        },
+        {
+            "id": "1f8c2d43-9a07-4e6b-b512-3c8d7e19a260",
+            "name": "ensembleModel",
+            "displayName": "Ensemble model (spread)",
+            "type": "QString",
+            "defaultValue": "icon_seamless"
+        },
+        {
+            "id": "c4e70b18-5d92-4a3f-8e61-0b7a4d2c9f35",
+            "name": "apiKey",
+            "displayName": "API key (commercial endpoint, optional)",
+            "type": "QString",
+            "defaultValue": ""
+        }
+    ],
+    "vendors": [
+        {
+            "name": "openMeteo",
+            "displayName": "Open-Meteo",
+            "id": "b1f520ea-dcac-4b16-8cab-89204a225c1b",
+            "thingClasses": [
+                {
+                    "id": "59e23cb4-4820-45d4-9c2e-e7bc7b8c7ca6",
+                    "name": "openMeteoSite",
+                    "displayName": "Open-Meteo site",
+                    "interfaces": [
+                        "weather",
+                        "daylightsensor"
+                    ],
+                    "createMethods": [
+                        "user"
+                    ],
+                    "paramTypes": [
+                        {
+                            "id": "cc7f6cde-c3dd-4924-be5e-a014e20df624",
+                            "name": "name",
+                            "displayName": "Name",
+                            "type": "QString",
+                            "inputType": "TextLine",
+                            "defaultValue": ""
+                        },
+                        {
+                            "id": "28b4574a-19ea-41d2-9e58-51f0de11165b",
+                            "name": "latitude",
+                            "displayName": "Latitude (required, -90 to 90)",
+                            "type": "double",
+                            "defaultValue": 999
+                        },
+                        {
+                            "id": "8bb8ca04-7a28-4cf5-8a4d-1e1081e75c4b",
+                            "name": "longitude",
+                            "displayName": "Longitude (required, -180 to 180)",
+                            "type": "double",
+                            "defaultValue": 999
+                        },
+                        {
+                            "id": "eb16b64a-588f-4d45-b50a-3ca6bc3decc2",
+                            "name": "elevation",
+                            "displayName": "Elevation (m, optional)",
+                            "type": "double",
+                            "defaultValue": 0
+                        }
+                    ],
+                    "actionTypes": [
+                        {
+                            "id": "d31b0484-0149-4dcd-92dc-408392cc5ec3",
+                            "name": "refreshWeather",
+                            "displayName": "Refresh"
+                        }
+                    ],
+                    "stateTypes": [
+                        {
+                            "id": "2bb525b4-a392-46ba-bc2e-4d905c59ccd3",
+                            "name": "weatherDescription",
+                            "displayName": "Weather description",
+                            "displayNameEvent": "Weather description changed",
+                            "type": "QString",
+                            "defaultValue": ""
+                        },
+                        {
+                            "id": "3ac82ea4-b824-4c0c-8ca9-216a1fc9c587",
+                            "name": "weatherCondition",
+                            "displayName": "Weather condition",
+                            "displayNameEvent": "Weather condition changed",
+                            "type": "QString",
+                            "defaultValue": "clear-day",
+                            "possibleValues": [
+                                "clear-day",
+                                "clear-night",
+                                "few-clouds-day",
+                                "few-clouds-night",
+                                "clouds",
+                                "overcast",
+                                "light-rain",
+                                "shower-rain",
+                                "thunderstorm",
+                                "snow",
+                                "fog"
+                            ]
+                        },
+                        {
+                            "id": "ed48e3ed-f3fd-4401-9b62-0766d7f5d315",
+                            "name": "updateTime",
+                            "displayName": "Last update",
+                            "displayNameEvent": "Last update changed",
+                            "type": "int",
+                            "defaultValue": 0,
+                            "unit": "UnixTime"
+                        },
+                        {
+                            "id": "b0089fa5-fe4b-4dfc-a1ed-dbd85ca75b20",
+                            "name": "temperature",
+                            "displayName": "Temperature",
+                            "displayNameEvent": "Temperature changed",
+                            "type": "double",
+                            "defaultValue": 0,
+                            "unit": "DegreeCelsius"
+                        },
+                        {
+                            "id": "348879d1-0433-416f-a9ce-a05d522a2d26",
+                            "name": "temperatureMin",
+                            "displayName": "Minimum temperature (today)",
+                            "displayNameEvent": "Minimum temperature (today) changed",
+                            "type": "double",
+                            "defaultValue": 0,
+                            "unit": "DegreeCelsius"
+                        },
+                        {
+                            "id": "6530fa30-d1bf-4f84-9a2f-30f1aa65e130",
+                            "name": "temperatureMax",
+                            "displayName": "Maximum temperature (today)",
+                            "displayNameEvent": "Maximum temperature (today) changed",
+                            "type": "double",
+                            "defaultValue": 0,
+                            "unit": "DegreeCelsius"
+                        },
+                        {
+                            "id": "36413dbc-245b-4067-b5dc-41e71b37c0e9",
+                            "name": "humidity",
+                            "displayName": "Humidity",
+                            "displayNameEvent": "Humidity changed",
+                            "type": "int",
+                            "defaultValue": 0,
+                            "unit": "Percentage"
+                        },
+                        {
+                            "id": "6bf903e5-6c04-492b-bc43-00db60d2edf4",
+                            "name": "pressure",
+                            "displayName": "Pressure",
+                            "displayNameEvent": "Pressure changed",
+                            "type": "double",
+                            "defaultValue": 0,
+                            "unit": "HectoPascal"
+                        },
+                        {
+                            "id": "41ec4108-3651-4162-b782-c957e14355b9",
+                            "name": "windSpeed",
+                            "displayName": "Wind speed",
+                            "displayNameEvent": "Wind speed changed",
+                            "type": "double",
+                            "defaultValue": 0,
+                            "unit": "MeterPerSecond"
+                        },
+                        {
+                            "id": "d64aa5ab-0b1a-477d-95a6-11b755154d88",
+                            "name": "windDirection",
+                            "displayName": "Wind direction",
+                            "displayNameEvent": "Wind direction changed",
+                            "type": "int",
+                            "defaultValue": 0,
+                            "unit": "Degree"
+                        },
+                        {
+                            "id": "758af353-7e2b-4073-961f-77c5f8bd3b32",
+                            "name": "cloudiness",
+                            "displayName": "Cloudiness",
+                            "displayNameEvent": "Cloudiness changed",
+                            "type": "int",
+                            "defaultValue": 0,
+                            "unit": "Percentage"
+                        },
+                        {
+                            "id": "175bf804-9881-4272-a83f-fb81a9a029b3",
+                            "name": "snowfall",
+                            "displayName": "Snowfall (preceding hour)",
+                            "displayNameEvent": "Snowfall (preceding hour) changed",
+                            "type": "double",
+                            "defaultValue": 0,
+                            "unit": "CentiMeter"
+                        },
+                        {
+                            "id": "c8325cc4-de67-4581-a3d7-8248ecbd70e9",
+                            "name": "forecastGhi",
+                            "displayName": "GHI forecast (W/m²)",
+                            "displayNameEvent": "GHI forecast (W/m2) changed",
+                            "type": "double",
+                            "defaultValue": 0
+                        },
+                        {
+                            "id": "0b0c5565-e5c5-4927-8a89-1e6b05c19250",
+                            "name": "forecastDni",
+                            "displayName": "DNI forecast (W/m²)",
+                            "displayNameEvent": "DNI forecast (W/m2) changed",
+                            "type": "double",
+                            "defaultValue": 0
+                        },
+                        {
+                            "id": "67e64a1f-3dfa-46fa-8438-89df0f7f5c2e",
+                            "name": "forecastDhi",
+                            "displayName": "DHI forecast (W/m²)",
+                            "displayNameEvent": "DHI forecast (W/m2) changed",
+                            "type": "double",
+                            "defaultValue": 0
+                        },
+                        {
+                            "id": "c9681fca-1020-4138-8d6e-d6d73d5a002e",
+                            "name": "terrestrialRadiation",
+                            "displayName": "TOA radiation (W/m2)",
+                            "displayNameEvent": "TOA radiation (W/m2) changed",
+                            "type": "double",
+                            "defaultValue": 0
+                        },
+                        {
+                            "id": "a25a9740-749e-455a-b4e7-60fff3d402f3",
+                            "name": "forecastGhiSumToday",
+                            "displayName": "GHI sum forecast today (kWh/m²)",
+                            "displayNameEvent": "GHI sum today (kWh/m2) changed",
+                            "type": "double",
+                            "defaultValue": 0
+                        },
+                        {
+                            "id": "de0f16e8-8e88-4aa7-b00f-c744e1e13072",
+                            "name": "observedGhi",
+                            "displayName": "GHI observed, satellite (W/m²)",
+                            "displayNameEvent": "GHI observed sat (W/m2) changed",
+                            "type": "double",
+                            "defaultValue": 0
+                        },
+                        {
+                            "id": "a8d0074b-5696-464b-a9c6-7da16f3cd021",
+                            "name": "observedClearSkyGhi",
+                            "displayName": "Clear-sky GHI observed, satellite (W/m²)",
+                            "displayNameEvent": "Clear-sky GHI sat (W/m2) changed",
+                            "type": "double",
+                            "defaultValue": 0
+                        },
+                        {
+                            "id": "c6b6ccb6-a5cb-458a-bb7d-9dd6f818a962",
+                            "name": "observedClearSkyIndex",
+                            "displayName": "Clear-sky index kt (observed)",
+                            "displayNameEvent": "Clear-sky index kt changed",
+                            "type": "double",
+                            "defaultValue": 0
+                        },
+                        {
+                            "id": "2c6918d0-9758-4c71-b75b-1f08c3701ddf",
+                            "name": "sunriseTime",
+                            "displayName": "Sunrise time",
+                            "displayNameEvent": "Sunrise time changed",
+                            "type": "int",
+                            "defaultValue": 0,
+                            "unit": "UnixTime"
+                        },
+                        {
+                            "id": "c005cf92-1e29-4033-a65b-578d5d541240",
+                            "name": "sunsetTime",
+                            "displayName": "Sunset time",
+                            "displayNameEvent": "Sunset time changed",
+                            "type": "int",
+                            "defaultValue": 0,
+                            "unit": "UnixTime"
+                        },
+                        {
+                            "id": "291eea88-0a6d-4ca2-be1c-8a291cfbbdef",
+                            "name": "daylight",
+                            "displayName": "Daylight",
+                            "displayNameEvent": "Daylight changed",
+                            "type": "bool",
+                            "defaultValue": false
+                        },
+                        {
+                            "id": "a6b91e27-3c84-4d05-9f7a-6e2b810c4d93",
+                            "name": "forecastModel",
+                            "displayName": "Forecast model that answered",
+                            "type": "QString",
+                            "defaultValue": "",
+                            "cached": true
+                        },
+                        {
+                            "id": "2d5f8a06-7e13-4b92-a84c-1f6d093b7e58",
+                            "name": "forecastValid",
+                            "displayName": "Forecast valid",
+                            "type": "bool",
+                            "defaultValue": false,
+                            "cached": true
+                        },
+                        {
+                            "id": "9e14c7b3-0a68-4f25-8d71-4b3e6c250a97",
+                            "name": "forecastTendencyToday",
+                            "displayName": "Sky tendency forecast today",
+                            "type": "QString",
+                            "possibleValues": [
+                                "unknown",
+                                "sunny",
+                                "mixed",
+                                "overcast"
+                            ],
+                            "defaultValue": "unknown",
+                            "cached": true
+                        },
+                        {
+                            "id": "b7205e94-1d38-4a76-9e05-6c48f2b0d371",
+                            "name": "observedTime",
+                            "displayName": "Satellite sample time",
+                            "type": "int",
+                            "unit": "UnixTime",
+                            "defaultValue": 0,
+                            "cached": true
+                        },
+                        {
+                            "id": "3f8c1a05-7b26-4e90-8d14-52a7c0e93b61",
+                            "name": "forecastIssuedAt",
+                            "displayName": "Model run initialisation — revision key",
+                            "type": "int",
+                            "unit": "UnixTime",
+                            "defaultValue": 0,
+                            "cached": true
+                        },
+                        {
+                            "id": "c1740de9-2a38-4b65-9e07-8f3612b0ad74",
+                            "name": "forecastAvailableAt",
+                            "displayName": "Model run publication — informational, never a revision key",
+                            "type": "int",
+                            "unit": "UnixTime",
+                            "defaultValue": 0,
+                            "cached": true
+                        },
+                        {
+                            "id": "157ed8e3-77b9-4058-a4f6-0a946f000d09",
+                            "name": "forecastHourlyWeather",
+                            "displayName": "Hourly weather forecast — series for the app, not a value",
+                            "type": "QVariantMap",
+                            "defaultValue": {},
+                            "cached": false
+                        }
+                    ]
+                },
+                {
+                    "id": "fdfb5cb3-e5da-49d1-8d4e-1a316a68061a",
+                    "name": "openMeteoPvPlane",
+                    "displayName": "Open-Meteo PV plane",
+                    "interfaces": [],
+                    "createMethods": [
+                        "discovery"
+                    ],
+                    "paramTypes": [
+                        {
+                            "id": "f5c6d83f-32a2-4cf8-85ae-137eb9c60635",
+                            "name": "name",
+                            "displayName": "Name",
+                            "type": "QString",
+                            "inputType": "TextLine",
+                            "defaultValue": ""
+                        },
+                        {
+                            "id": "e2914db5-d5d6-4c7b-9da6-5fba8a49e023",
+                            "name": "tilt",
+                            "displayName": "Tilt (deg, 0=horizontal)",
+                            "type": "double",
+                            "minValue": 0,
+                            "maxValue": 90,
+                            "defaultValue": 30
+                        },
+                        {
+                            "id": "ecba346a-e5f5-4264-92ab-a92a8fb2cf38",
+                            "name": "azimuth",
+                            "displayName": "Azimuth (deg geographic, 180=South)",
+                            "type": "double",
+                            "minValue": 0,
+                            "maxValue": 360,
+                            "defaultValue": 180
+                        },
+                        {
+                            "id": "a8291abd-8106-49a1-868e-8907e16bba8a",
+                            "name": "kwp",
+                            "displayName": "Peak power kWp",
+                            "type": "double",
+                            "defaultValue": 0
+                        },
+                        {
+                            "id": "6c9e3b81-4207-45da-9f38-1e05b7c294a6",
+                            "name": "performanceRatio",
+                            "displayName": "Performance ratio (declared, not learned)",
+                            "type": "double",
+                            "defaultValue": 1.0,
+                            "minValue": 0.1,
+                            "maxValue": 1.0
+                        },
+                        {
+                            "id": "4e0dab54-beb7-420a-a50c-cb6a47639fdc",
+                            "name": "tempCoeffPctPerK",
+                            "displayName": "Power temperature coefficient (%/K, declared, not learned)",
+                            "type": "double",
+                            "defaultValue": -0.37,
+                            "minValue": -1.0,
+                            "maxValue": 0.0
+                        },
+                        {
+                            "id": "9421c641-5f36-4338-bd89-5376a1cf9aaa",
+                            "name": "noctC",
+                            "displayName": "NOCT (°C, declared, not learned)",
+                            "type": "double",
+                            "defaultValue": 45,
+                            "minValue": 30,
+                            "maxValue": 70
+                        }
+                    ],
+                    "stateTypes": [
+                        {
+                            "id": "e0efeb24-d63c-48d7-93d7-34174c9f4e15",
+                            "name": "forecastGtiSource",
+                            "displayName": "GTI forecast, source quantity (W/m²)",
+                            "displayNameEvent": "GTI current (W/m2) changed",
+                            "type": "double",
+                            "defaultValue": 0
+                        },
+                        {
+                            "id": "95ed4db9-a231-41bb-b313-78735b63fe9c",
+                            "name": "updateTime",
+                            "displayName": "Last update",
+                            "displayNameEvent": "Last update changed",
+                            "type": "int",
+                            "defaultValue": 0,
+                            "unit": "UnixTime"
+                        },
+                        {
+                            "id": "0af62d37-8e51-4930-b7c4-29d6350e1b8f",
+                            "name": "forecastPvPower",
+                            "displayName": "PV power forecast",
+                            "type": "double",
+                            "unit": "Watt",
+                            "defaultValue": 0,
+                            "cached": true
+                        },
+                        {
+                            "id": "4e178c05-b62a-49d3-8017-5fa3d9e26b04",
+                            "name": "forecastEnergyNext3h",
+                            "displayName": "PV energy forecast, next 3 h (rolling, may cross midnight)",
+                            "type": "double",
+                            "unit": "KiloWattHour",
+                            "defaultValue": 0,
+                            "cached": true
+                        },
+                        {
+                            "id": "cd9a0362-7145-4e8b-92f6-0b381ea75c29",
+                            "name": "forecastEnergyNext6h",
+                            "displayName": "PV energy forecast, next 6 h (rolling, may cross midnight)",
+                            "type": "double",
+                            "unit": "KiloWattHour",
+                            "defaultValue": 0,
+                            "cached": true
+                        },
+                        {
+                            "id": "81f5b7e0-3d96-4c27-a45e-6209d1b83f7a",
+                            "name": "forecastEnergyNext12h",
+                            "displayName": "PV energy forecast, next 12 h (rolling, may cross midnight)",
+                            "type": "double",
+                            "unit": "KiloWattHour",
+                            "defaultValue": 0,
+                            "cached": true
+                        },
+                        {
+                            "id": "73c2e948-105b-4fa6-8d39-b7e0426c5918",
+                            "name": "forecastEnergyRestOfDay",
+                            "displayName": "PV energy forecast, now until sunset",
+                            "type": "double",
+                            "unit": "KiloWattHour",
+                            "defaultValue": 0,
+                            "cached": true
+                        },
+                        {
+                            "id": "a05d6f31-9c28-4b70-85e1-3d47f92b06ce",
+                            "name": "forecastEnergyTomorrow",
+                            "displayName": "PV energy forecast, tomorrow",
+                            "type": "double",
+                            "unit": "KiloWattHour",
+                            "defaultValue": 0,
+                            "cached": true
+                        },
+                        {
+                            "id": "ef430a75-2168-49bc-b03d-5c9e18a72640",
+                            "name": "forecastPeakTime",
+                            "displayName": "Forecast peak irradiance time today",
+                            "type": "int",
+                            "unit": "UnixTime",
+                            "defaultValue": 0,
+                            "cached": true
+                        },
+                        {
+                            "id": "12b8e5c7-6403-4a19-bd82-70f5e3961cad",
+                            "name": "observedGti",
+                            "displayName": "GTI observed, satellite (W/m²)",
+                            "type": "double",
+                            "defaultValue": 0,
+                            "cached": true
+                        },
+                        {
+                            "id": "9d0742be-5138-4c60-a97f-2e836b1054df",
+                            "name": "observedGtiTime",
+                            "displayName": "Satellite sample time",
+                            "type": "int",
+                            "unit": "UnixTime",
+                            "defaultValue": 0,
+                            "cached": true
+                        },
+                        {
+                            "id": "e551e084-f52d-44eb-9802-8335c623698c",
+                            "name": "observedGtiSeries",
+                            "displayName": "GTI observed, satellite — hourly series, transport channel, not a value",
+                            "type": "QVariantMap",
+                            "defaultValue": {},
+                            "cached": false
+                        },
+                        {
+                            "id": "5b02d94f-6c17-4e83-b09a-8d2f715c6e40",
+                            "name": "forecastWeatherSpreadTodayPercent",
+                            "displayName": "GTI weather spread today — qualifies weather only, not PV accuracy",
+                            "type": "double",
+                            "unit": "Percentage",
+                            "defaultValue": 0,
+                            "cached": true
+                        },
+                        {
+                            "id": "e83f5a10-2b76-4c94-9152-7a0d8e3b61c2",
+                            "name": "forecastWeatherSpreadTomorrowPercent",
+                            "displayName": "GTI weather spread tomorrow — qualifies weather only, not PV accuracy",
+                            "type": "double",
+                            "unit": "Percentage",
+                            "defaultValue": 0,
+                            "cached": true
+                        },
+                        {
+                            "id": "dd91f6bb-fbb1-4d40-bee9-cf2275139579",
+                            "name": "forecastWeatherSpreadTime",
+                            "displayName": "Weather spread computed at",
+                            "type": "int",
+                            "unit": "UnixTime",
+                            "defaultValue": 0,
+                            "cached": true
+                        },
+                        {
+                            "id": "35cedc2e-de80-404f-857b-170a7a818633",
+                            "name": "forecastWeatherSpreadValid",
+                            "displayName": "Weather spread current (computed less than 6 h ago)",
+                            "type": "bool",
+                            "defaultValue": false,
+                            "cached": true
+                        },
+                        {
+                            "id": "38a6d1e5-9f40-4b27-8c63-05e1274ba9d8",
+                            "name": "forecastSpreadModel",
+                            "displayName": "Ensemble model used for spread",
+                            "type": "QString",
+                            "defaultValue": "",
+                            "cached": true
+                        },
+                        {
+                            "id": "5a8e02c1-9d47-4b36-8f70-e1c25943b8da",
+                            "name": "forecastCurveTransport",
+                            "displayName": "Forecast curve — transport channel, not a value",
+                            "type": "QVariantMap",
+                            "defaultValue": {},
+                            "cached": false
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

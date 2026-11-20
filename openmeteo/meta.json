@@ -1,0 +1,14 @@
+{
+    "title": "OpenMeteo",
+    "tagline": "Get current weather data for your location.",
+    "icon": "openmeteo.png",
+    "stability": "consumer",
+    "offline": false,
+    "technologies": [
+        "cloud"
+    ],
+    "categories": [
+        "weather",
+        "online-service"
+    ]
+}

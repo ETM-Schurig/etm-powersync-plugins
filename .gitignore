@@ -1,0 +1,11 @@
+# Build / IDE artifacts
+build/
+*.user
+*.o
+*.so
+moc_*
+plugininfo.h
+extern-plugininfo.h
+.qmake.stash
+Makefile
+*.qm
